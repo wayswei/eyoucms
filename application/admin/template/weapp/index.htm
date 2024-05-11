@@ -1,52 +1,29 @@
 {include file="public/layout" /}
-<style>
-    .icon-link_add {
-        background-color: #fff;
-        position: absolute;
-        top: 5px;
-        right: 6px;
-        text-align: center;
-        border: 1px solid #e1e1e1;
-        border-radius: 50%;
-        cursor: pointer;
-    }
-    .iconfont {
-        font-family: "iconfont" !important;
-        font-size: 16px;
-        font-style: normal;
-        -webkit-font-smoothing: antialiased;
-        -moz-osx-font-smoothing: grayscale;
-    }
-    .e-jiahao2 {
-        color: #adadad;
-        font-weight: 700;
-    }
-    .e-jianhao {
-        color: #3fa9e0;
-        font-weight: 700;
-    }
-</style>
 <body class="bodystyle" style="cursor: default; -moz-user-select: inherit;">
 <div id="append_parent"></div>
 <div id="ajaxwaitid"></div>
-<div class="page min-hg-c-10">
-    <div class="row-bar clearfix mb10">
-        {include file="weapp/bar" /}
-        <div class="flexigrid fr">
+<div class="page">
+    {include file="weapp/bar" /}
+    <div class="flexigrid">
+        <div class="mDiv">
+            <div class="ftitle">
+                <h3>插件列表</h3>
+                <h5>(共{$pager->totalRows}条数据)</h5>
+            </div>
+            <div title="刷新数据" class="pReload"><i class="fa fa-refresh"></i></div>
             <form class="navbar-form form-inline" action="{:url('Weapp/index')}" method="get" onsubmit="layer_loading('正在处理');">
                 {$searchform.hidden|default=''}
-                <div class="ftitle">
-                    <div class="sDiv2 fl" style="">
-                        <input type="text" size="30" name="keywords" class="qsbox" placeholder="搜索应用名称..." autocomplete="off">
-                        <input type="submit" class="btn" value="搜索">
-            			<i class="iconfont e-sousuo"></i>
+                <div class="sDiv">
+                    <div class="fl" style="margin-right: 30px;">
+                        <a href="{:url('Weapp/mybuy', ['install'=>0])}" class="tab {eq name="$Request.action" value="mybuy"}current{/eq}"><span>已购买的插件</span></a>
                     </div>
+                    <!-- <div class="sDiv2 fl" style="margin-right: 6px;">
+                        <input type="text" size="30" name="keywords" class="qsbox" placeholder="搜索相关数据...">
+                        <input type="submit" class="btn" value="搜索">
+                    </div> -->
                 </div>
             </form>
         </div>
-    </div>
-    
-    <div class="flexigrid">
         <div class="plug-list">
             {empty name="list"}
             <div class="bDiv" style="height: auto;">
@@ -55,9 +32,7 @@
                         <tbody>
                             <tr>
                                 <td class="no-data" align="center" axis="col0" colspan="50">
-                                    <div class="no_row">
-                                        <div class="no_pic"><img src="__SKIN__/images/null-data.png"></div>
-                                    </div>
+                                    <i class="fa fa-exclamation-circle"></i>没有符合条件的记录
                                 </td>
                             </tr>
                         </tbody>
@@ -66,86 +41,15 @@
                 <div class="iDiv" style="display: none;"></div>
             </div>
             {else /}
-                <script>
-                    var update_admin_menu_url = "{:url('Ajax/update_admin_menu', ['_ajax'=>1])}";   //添加、删除入口地址
-                    var is_founder = {$is_founder};
-                    $(function(){
-                        //添加、取消成为栏目
-                        $(".bodystyle").on('click','.e-jiahao2',function (){
-                            if(is_founder !== 1){
-                                return false;
-                            }
-                            var menu_id = $(this).data('menu_id');
-                            var title = $(this).data('name');
-                            var controller_name = "Weapp" ;
-                            var action_name = "execute" ;
-                            var param = $(this).data('param');
-                            var target = $(this).data('target');
-                            var icon = "iconfont e-chajian" ;
-                            _this = this;
-                            if($(this).hasClass('e-jianhao')) {  //原本为“已添加”，去除"我的菜单"，修改下面块为“未添加”模式，且显示
-                                $.ajax({
-                                    type: "POST",
-                                    url: update_admin_menu_url,
-                                    data: {title:title,controller_name:controller_name,action_name:action_name,menu_id:menu_id,icon:icon,param:param,target:target,type:2},
-                                    dataType: 'json',
-                                    success:function (res) {
-                                        if(res.code == 1){
-                                            //修改状态
-                                            $(_this).removeClass('e-jianhao');
-                                            //去除左侧菜单
-                                            parent.$("."+controller_name+'_'+action_name+'_'+menu_id).remove();
-                                        }
-                                        return false;
-                                    }
-                                });
-                            }else{          //原本为未添加，添加到我的菜单
-                                $.ajax({
-                                    type: "POST",
-                                    url: update_admin_menu_url,
-                                    data: {title:title,controller_name:controller_name,action_name:action_name,menu_id:menu_id,icon:icon,param:param,target:target,type:1,is_switch:0},
-                                    dataType: 'json',
-                                    success:function (res) {
-                                        if(res.code == 1){
-                                            //修改状态
-                                            $(_this).addClass('e-jianhao');
-                                            //添加左侧菜单
-                                            var html = '<a data-child="0"  data-id="'+menu_id+ '" class="left_menu_'+menu_id+ ' '+controller_name+'_'+action_name+'_'+menu_id+'" id="'+controller_name+'_'+action_name+'"  data-menu_id="' + menu_id + '" href="javascript:void(0);" data-param="'+controller_name+'|'+action_name+param+'" data-target="'+target+'" >'
-                                                +'<i class="'+icon+'"></i>'+title+'</a>';
-                                            if (parent.$(".left_menu_2004")){
-                                                parent.$(".left_menu_2004").before(html);
-                                            }else{
-                                                parent.$("#sub-menu").append(html);
-                                            }
-                                        }
-                                        return false;
-                                    }
-                                });
-                            }
-                        });
-                    });
-                </script>
                 {foreach name="list" item="vo" key="k" }
                 <div class="plug-item-content">
                     <div class="plug-item-top">
                         <div class="plug-img">
-                            <a href="{:url('Weapp/execute',array('sm'=>$vo['code'],'sc'=>$vo['code'],'sa'=>'index'))}" {if condition="!empty($vo['config']['management']['href'])"} target="{$vo['config']['management']['target']|default='_self'}" {/if}><img src="{$vo.config.litpic|get_default_pic=###}?v={$vo.config.version}" ></a>
+                            <a href="{:url('Weapp/execute',array('sm'=>$vo['code'],'sc'=>$vo['code'],'sa'=>'index'))}"><img src="{$vo.config.litpic|get_default_pic=###}?v={$vo.config.version}" ></a>
                         </div>
                         <div class="plug-text">
                             <div class="plug-text-title">
-                                <a class="title-l" href="{:url('Weapp/execute',array('sm'=>$vo['code'],'sc'=>$vo['code'],'sa'=>'index'))}" {if condition="!empty($vo['config']['management']['href'])"} target="{$vo['config']['management']['target']|default='_self'}" {/if}>{$vo.name}</a>
-                                {$RenewList[$vo['code']]['maturity_text']|default=''}
-                                {notempty name="$is_founder"}
-                                    {if condition="!empty($vo.config.management.href)"}
-                                        <div class="icon-link_add">
-                                            <div {if condition="in_array('1000'.$vo.id,$menu_id_arr)"}title="取消导航显示" class="iconfont e-jiahao2 e-jianhao"{else /}title="加入导航显示"  class="iconfont e-jiahao2"{/if} data-menu_id="1000{$vo.id}" data-name="{$vo.name}" data-param="{$vo.config.management.href|handle_weapp_url=###}" data-target="{$vo.config.management.target|default='workspace'}" ></div>
-                                        </div>
-                                    {else /}
-                                        <div class="icon-link_add">
-                                            <div {if condition="in_array('1000'.$vo.id,$menu_id_arr)"}title="取消导航显示" class="iconfont e-jiahao2 e-jianhao"{else /}title="加入导航显示"  class="iconfont e-jiahao2"{/if} data-menu_id="1000{$vo.id}" data-name="{$vo.name}" data-param="|sm|{$vo.code}|sc|{$vo.code}|sa|index" data-target="{$vo.config.management.target|default='workspace'}" ></div>
-                                        </div>
-                                    {/if}
-                                {/notempty}
+                                <a href="{:url('Weapp/execute',array('sm'=>$vo['code'],'sc'=>$vo['code'],'sa'=>'index'))}">{$vo.name}</a>
                             </div>
                             <div class="plug-text-versions">
                                 <span>版本：{$vo.config.version|default='未知'}</span>
@@ -178,7 +82,7 @@
                                 <a href="javascript:void(0);" onclick="remoteInstall('{$vo['code']}', '{$vo['min_version']}');">安装</a>
                                 {/eq}
                                 {eq name="'Weapp@del_remote'|is_check_access" value="1"}
-                                <a href="javascript:void(0);" data-url="{:url('Weapp/del_remote')}" data-id="{$vo.id}" data-menu_id="1000{$vo.id}" data-name="{$vo.name}" onClick="del_remote(this);">删除</a>
+                                <a href="javascript:void(0);" data-url="{:url('Weapp/del_remote')}" data-id="{$vo.id}" data-name="{$vo.name}" onClick="del_remote(this);">删除</a>
                                 {/eq}
                             {/empty}
                         {else /}
@@ -190,7 +94,7 @@
                                 {/if}
                             {/eq}
                             {eq name="'Weapp@uninstall'|is_check_access" value="1"}
-                                <a href="javascript:void(0);" onclick="uninstall(this);" data-id="{$vo['id']}" data-menu_id="1000{$vo.id}" data-name="{$vo.name}">卸载</a>
+                                <a href="javascript:void(0);" onclick="uninstall(this);" data-id="{$vo['id']}" data-name="{$vo.name}">卸载</a>
                             {/eq}
                         {/empty}
 
@@ -217,18 +121,25 @@
                 </div>
                 {/foreach}
             {/empty}
-			<div class="flexigrid">
-			<div class="footer-oper">
-				<div class="fbuttonr">
-				    <div class="pages">
-				       {$page}
-				    </div>
-				</div>
-			    <div style="clear:both"></div>
-			</div>
-			</div>
         </div>
-		
+		        <div class="tDiv">
+            <div class="tDiv2">
+                {eq name="'Weapp@upload'|is_check_access" value="1"}
+                <div class="fbutton">
+                    {eq name='$isFounder' value='1'}
+                    <form class="navbar-form form-inline" action="{:url('Weapp/upload')}" name="change_System" id="change_System" method="post" enctype="multipart/form-data">
+                        <a id="a_weappfile" href="javascript:void(0);" class="a-upload"><input type="file" name="weappfile" id="weappfile" title="请选择…" accept="application/x-zip-compressed"><i class="fa fa-upload"></i>上传安装插件</a>
+                    </form>
+                    <input type="hidden" id="is_weapp_installanswer" value="{$is_weapp_installanswer|default='0'}" />
+                    {else /}
+                        <a onclick="layer.alert('请登录创始人账号进行操作！', {icon:4, title: false});" href="javascript:void(0);" class="a-upload"><i class="fa fa-upload"></i>上传安装插件</a>
+                    {/eq}
+                </div>
+                {/eq}
+            </div>
+            <div style="clear:both"></div>
+        </div>
+        {$page}
     </div>
 </div>
 <form name="form2" id="form2" method="post" action="">
@@ -249,6 +160,134 @@
         $('.fa-refresh').click(function(){
             location.href = location.href;
         });
+
+        {empty name="$is_set_weapp_answer"}
+        get_setting();
+        {/empty}
+
+        $('#weappfile').change(function(){
+            {empty name="$weapp_install_answer"}
+            get_setting();
+            return false;
+            {/empty}
+
+            var weappfile = $("#weappfile")[0].files[0];  //获取文件路径名
+            var is_weapp_installanswer = $('#is_weapp_installanswer').val();
+            if (0 == is_weapp_installanswer) {
+                layer.prompt({
+                        title: false,
+                        closeBtn: 0,
+                        id: 'input_installanswer',
+                        success: function(layero, index){
+                            $("#input_installanswer").prepend('<div style="margin-bottom: 15px;font-size: 14px;color: red;font-weight: bold;">{$weapp_install_asktitle}</div>');
+                            $("#input_installanswer").find('input').attr('placeholder', '请录入问题的答案内容！');
+                            $("#input_installanswer").find('input').bind('keydown', function(event){
+                                if(event.keyCode ==13){
+                                    upload($(this).val(), weappfile);
+                                }
+                            });
+                        },
+                        btn2: function(index, layero){
+                            layer.close(index);
+                            window.location.reload();
+                            return false;
+                        }
+                    },
+                    function(answer, index){
+                        upload(answer, weappfile);
+                    }
+                );
+            } else {
+                upload(false, weappfile);
+            }
+        });
+
+        function get_setting()
+        {
+            //iframe窗
+            var iframes = layer.open({
+                type: 2,
+                title: '设置问题答案',
+                fixed: true, //不固定
+                shadeClose: false,
+                shade: 0.3,
+                area: ['500px', '350px'],
+                content: "{:url('Weapp/setting')}",
+                end: function(){
+                    $.ajax({
+                        type : 'get',
+                        url : "{:url('Weapp/setting_close')}",
+                        data : {_ajax:1},
+                        dataType : 'json',
+                        success : function(res){
+
+                        }
+                    })
+                }
+            });
+        }
+
+        function upload(answer, weappfile)
+        {
+            // var weappfile = document.getElementById('weappfile').files[0]; //获取文件路径名
+            // var weappfile = $("#weappfile")[0].files[0];  //获取文件路径名
+
+            var weappfileName = weappfile.name;
+            var ext = weappfileName.substr(weappfileName.lastIndexOf('.')).toLowerCase();
+            if ($.trim(weappfileName) == '' || ext != '.zip') {
+                $('#weappfile').val('');
+                showErrorMsg('请上传zip压缩包！');
+                return false;
+            }
+     
+            var formData = new FormData();
+            formData.append('_ajax', 1);
+            formData.append('weappfile', weappfile);
+            if (false !== answer) {
+                formData.append('answer', answer);
+            }
+          
+            var loading = layer.msg('正在处理...&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;请勿刷新页面', 
+            {
+                icon: 1,
+                time: 3600000, //1小时后后自动关闭
+                shade: [0.2] //0.1透明度的白色背景
+            });
+            //loading层
+            var loading_1 = layer.load(3, {
+                shade: [0.1,'#fff'] //0.1透明度的白色背景
+            });
+
+            $.ajax({
+                url: "{:url('Weapp/upload')}",  //同目录下的php文件
+                type: "POST",
+                data: formData,
+                dataType: "json", //声明成功使用json数据类型回调
+                //如果传递的是FormData数据类型，那么下来的三个参数是必须的，否则会报错
+                cache: false,  //默认是true，但是一般不做缓存
+                processData: false, //用于对data参数进行序列化处理，这里必须false；如果是true，就会将FormData转换为String类型
+                contentType: false,  //一些文件上传http协议的关系，自行百度，如果上传的有文件，那么只能设置为false
+                success: function(res){  //请求成功后的回调函数
+                    if (1 == res.code) {
+                        layer.closeAll();
+                        layer.msg(res.msg, {icon:1, time:1000}, function(){
+                            window.location.reload();
+                        });
+                    } else {
+                        $('#weappfile').val('');
+                        layer.close(loading);
+                        layer.close(loading_1);
+                        layer.msg(res.msg, {icon:2, time:1500});
+                    }
+                },
+                error: function(XMLHttpRequest, textStatus, errorThrown)
+                {
+                    layer.close(loading);
+                    layer.close(loading_1);
+                    layer.msg('安装失败', {icon:2, time:1500});
+                }
+            });
+        }
     });
 
     function weapp_upgrade(obj)
@@ -266,29 +305,28 @@
         var code = $(obj).attr('data-code');
         var v = $("#"+code+"_upgrade").val();    
         var intro = $("#"+code+"_intro").val();   
-        intro += '<style type="text/css">.layui-layer-content{height:270px!important;text-align:left!important;}</style>';
+        intro += '<style type="text/css">.layui-layer-content{height:270px!important}</style>';
         var notice = $("#"+code+"_notice").val(); 
         v = notice + intro + '<br/>' + v;
         //询问框
         layer.confirm(v, {
-            shade: layer_shade,
+            title: false,//'检测插件更新',
             area: ['580px','400px'],
-            move: false,
-            title: '新版本更新',
-            btnAlign:'r',
-            closeBtn: 3,
-            btn: ['升级','取消'], //按钮
-            success: function () {
-                $(".layui-layer-content").css('text-align', 'left');
-            }
+            btn: ['升级','取消'] //按钮
+            
         }, function(){
             layer.closeAll();
             setTimeout(function(){
                 upgrade(code); // 请求后台
             },200);
             
-        }, function(index){  
-            layer.close(index);
+        }, function(){  
+            layer.msg('不升级可能有安全隐患', {
+                btnAlign: 'c',
+                time: 20000, //20s后自动关闭
+                btn: ['明白了']
+            });
+            return false;
         });    
     }
 
@@ -301,40 +339,24 @@
             data : {code:code, _ajax:1},
             error: function(request) {
                 layer.closeAll();
-                layer.alert("升级失败！", {icon: 5, closeBtn: false, title:false}, function(){
+                layer.alert("升级失败，请第一时间联系技术协助！", {icon: 2, closeBtn: false, title:false}, function(){
                     window.location.reload();
                 });
             },
             success: function(res) {
+                layer.closeAll();
                 if(1 == res.code){
-                    $.ajax({
-                        type : 'GET',
-                        url : eyou_basefile+"?m=admin&c=Weapp&a=execute&sm="+code+"&sc="+code+"&sa=afterUpgrade&lang="+__lang__,
-                        timeout : 360000, //超时时间设置，单位毫秒 设置了 1小时
-                        data : {_ajax:1},
-                        dataType : 'json',
-                        success : function(res){
-                            layer.closeAll();
-                            layer.msg('已升级最新版本!', {time:1000}, function(){
-                                window.location.reload();
-                            });
-                        },
-                        error: function(e) {
-                            layer.closeAll();
-                            layer.msg('已升级最新版本!', {time:1000}, function(){
-                                window.location.reload();
-                            });
-                        }
-                    })
+                    layer.alert('已升级最新版本!', {icon: 1, closeBtn: false, title:false}, function(){
+                        window.location.reload();
+                    });
                 }
                 else{
-                    layer.closeAll();
-                    layer.alert(res.msg, {icon: 5, closeBtn: false, title:false}, function(){
+                    layer.alert(res.msg, {icon: 2, closeBtn: false, title:false}, function(){
                         window.location.reload();
                     });
                 }
             }
-        });
+        });                 
     }
 
     function install(obj)
@@ -351,17 +373,10 @@
     function uninstall(obj)
     {
         //询问框
-        var confirm = layer.confirm('数据将不可恢复，是否卸载？', {
-                shade: layer_shade,
-                area: ['480px', '190px'],
-                move: false,
-                title: '提示',
-                btnAlign:'r',
-                closeBtn: 3,
-                btn: ['确定', '取消'] ,//按钮
-                success: function () {
-                      $(".layui-layer-content").css('text-align', 'left');
-                  }
+        var confirm = layer.confirm('<font color="red">此操作数据不可恢复</font>，是否卸载移除？', {
+                title: false,
+                btn: ['确定', '取消'] //按钮
+
             }, function(){
                 layer.close(confirm);
                 uninstall_true(obj);
@@ -387,13 +402,11 @@
             success : function(res){
                 layer.closeAll();
                 if(res.code == 1){
-                    layer.msg(res.msg, {icon: 1, time: 1000}, function(){
-                        var menu_id = $(obj).attr('data-menu_id');
-                        $(".Weapp_execute_" + menu_id, window.parent.document).remove();
+                    layer.msg(res.msg, {icon: 1, time: 1500}, function(){
                         window.location.reload();
                     });
                 }else{
-                    layer.alert(res.msg, {icon: 5, title:false});
+                    layer.alert(res.msg, {icon: 2, title:false});
                 }
             },
             error: function(e) {
@@ -404,7 +417,7 @@
                         window.location.reload();
                     });
                 } else {
-                    layer.alert(e.responseText, {icon: 5, title:false});
+                    layer.alert(e.responseText, {icon: 2, title:false});
                 }
             }
         });
@@ -412,57 +425,9 @@
 
     function delfun(obj){
         var name = $(obj).attr('data-name');
-        layer.confirm('确认删除？', {
-            area: ['480px', '190px'],
-            shade: layer_shade,
-            move: false,
-            title: '提示',
-            btnAlign:'r',
-            closeBtn: 3,
-            btn: ['确定','取消'] ,//按钮
-            success: function () {
-                  $(".layui-layer-content").css('text-align', 'left');
-              }
-        }, function(){
-            layer_loading('正在处理');
-            // 确定
-            $.ajax({
-                type : 'post',
-                url : $(obj).attr('data-url'),
-                data : {del_id:$(obj).attr('data-id'), _ajax:1},
-                dataType : 'json',
-                success : function(res){
-                    layer.closeAll();
-                    if(res.code == 1){
-                        layer.msg(res.msg, {icon: 1, time: 1000}, function(){
-                            var menu_id = $(obj).attr('data-menu_id');
-                            $(".Weapp_execute_" + menu_id, window.parent.document).remove();
-                            window.location.reload();
-                        });
-                    }else{
-                        layer.alert(res.msg, {icon: 5, title:false});  //alert(res);
-                    }
-                }
-            })
-        }, function(index){
-            layer.close(index);
-        });
-        return false;
-    }
-
-    function del_remote(obj){
-        var name = $(obj).attr('data-name');
-        layer.confirm('确认移除？', {
-            area: ['480px', '190px'],
-            shade: layer_shade,
-            move: false,
-            title: '提示',
-            btnAlign:'r',
-            closeBtn: 3,
-            btn: ['确定','取消'] ,//按钮
-            success: function () {
-                  $(".layui-layer-content").css('text-align', 'left');
-              }
+        layer.confirm('<font color="#ff0000">将移除该插件相关文件</font>，确认移除？', {
+            title: false,//name,
+            btn: ['确定','取消'] //按钮
         }, function(){
             layer_loading('正在处理');
             // 确定
@@ -477,7 +442,36 @@
                         layer.msg(data.msg, {icon: 1});
                         window.location.reload();
                     }else{
-                        layer.alert(data.msg, {icon: 5, title:false});  //alert(data);
+                        layer.alert(data.msg, {icon: 2, title:false});  //alert(data);
+                    }
+                }
+            })
+        }, function(index){
+            layer.close(index);
+        });
+        return false;
+    }
+
+    function del_remote(obj){
+        var name = $(obj).attr('data-name');
+        layer.confirm('<font color="#ff0000">将移除'+name+'相关文件</font>，确认移除？', {
+            title: false,//name,
+            btn: ['确定','取消'] //按钮
+        }, function(){
+            layer_loading('正在处理');
+            // 确定
+            $.ajax({
+                type : 'post',
+                url : $(obj).attr('data-url'),
+                data : {del_id:$(obj).attr('data-id'), _ajax:1},
+                dataType : 'json',
+                success : function(data){
+                    layer.closeAll();
+                    if(data.code == 1){
+                        layer.msg(data.msg, {icon: 1});
+                        window.location.reload();
+                    }else{
+                        layer.alert(data.msg, {icon: 2, title:false});  //alert(data);
                     }
                 }
             })

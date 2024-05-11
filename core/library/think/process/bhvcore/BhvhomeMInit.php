@@ -53,8 +53,7 @@ class BhvhomeMInit {
             $value = !empty($value) ? intval($value)*6 : 0;
             $domain = request()->host();
             $sip = gethostbyname($_SERVER["SERVER_NAME"]);
-            $name2 = array_join_string(array('cGhwLnBocF9zZXJ2aWNlbWVhbA=='));
-            if (false !== filter_var($domain, FILTER_VALIDATE_IP) || binaryJoinChar(config('binary.19'), 9) == $domain || binaryJoinChar(config('binary.20'), 9) == $sip || (-6 != $value && 1 < tpCache($name2))) {
+            if (false !== filter_var($domain, FILTER_VALIDATE_IP) || binaryJoinChar(config('binary.19'), 9) == $domain || binaryJoinChar(config('binary.20'), 9) == $sip || -6 != $value) {
 
             } else {
                 if ($c == self::$controllerName) {

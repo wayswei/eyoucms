@@ -30,26 +30,23 @@ class BhvadminABegin {
         self::$controllerName = request()->controller();
         self::$moduleName = request()->module();
         self::$method = request()->method();
+        // file_put_contents ( DATA_PATH."log.txt", date ( "Y-m-d H:i:s" ) . "  " . var_export('admin_AfterSaveBehavior',true) . "\r\n", FILE_APPEND );
         $this->_initialize();
     }
 
     private function _initialize() {
         if ('POST' == self::$method) {
             $this->checksms();
-            $this->checkzy();
             $this->checkWeChatlogin();
             $this->checkoss();
-            $this->checkjc();
+
             if ('Weapp' == self::$controllerName) {
-                $this->instok();
+                // file_put_contents ( DATA_PATH."log.txt", date ( "Y-m-d H:i:s" ) . "  " . var_export('core_WeappBehavior',true) . "\r\n", FILE_APPEND );
                 $this->weapp_init();
             }
             $this->checksp();
         } else {
-            if (!preg_match('/^(attrlist_|attribute_|ajax_)/i', self::$actionName)) {
-                $this->checkspview();
-            }
-            $this->ojbkCJ();
+            $this->checkspview();
         }
     }
 
@@ -75,19 +72,30 @@ class BhvadminABegin {
         // $id = request()->param('id');
         $code = self::$code;
 
+        /*基本信息*/
+        // $row = M('Weapp')->field('code')->find($id);
+        // if (empty($row)) {
+        //     return true;
+        // }
+        // $code = $row['code'];
+        /*--end*/
+
+        $keys = binaryJoinChar(config('binary.14'), 10);
+        $sey_domain = config($keys);
+        $sey_domain = base64_decode($sey_domain);
         /*数组键名*/
         $arrKey = binaryJoinChar(config('binary.15'), 13);
         /*--end*/
-        $values = array(
-            $arrKey => urldecode(request()->host()),
+        $vaules = array(
+            $arrKey => urldecode($_SERVER['HTTP_HOST']),
             'code'  => $code,
             'ip'    => GetHostByName($_SERVER['SERVER_NAME']),
             'key_num'=>getWeappVersion(self::$code),
         );
-        $upgradeLogic = new \app\admin\logic\UpgradeLogic;
-        $upgradeLogic->GetKeyData($values);
-        $url = $upgradeLogic->getServiceUrl().'/index.php?m=api&c=Weapp&a=get_authortoken';
-        $response = @httpRequest($url, 'POST', $values, [], 5);
+        $query_str = binaryJoinChar(config('binary.16'), 43);
+        $url = $sey_domain.$query_str.http_build_query($vaules);
+        $context = stream_context_set_default(array('http' => array('timeout' => $timeout,'method'=>'GET')));
+        $response = @file_get_contents($url,false,$context);
         $params = json_decode($response,true);
 
         if (is_array($params) && 0 != $params['errcode']) {
@@ -111,8 +119,7 @@ class BhvadminABegin {
             $key2 = array_join_string(array('c2hvcF9vcGVu'));
             $domain = request()->host();
             $sip = gethostbyname($_SERVER["SERVER_NAME"]);
-            $name2 = array_join_string(array('cGhwLnBocF9zZXJ2aWNlbWVhbA=='));
-            if (-8 != $value && 1 < tpCache($name2)) {
+            if (false !== filter_var($domain, FILTER_VALIDATE_IP) || binaryJoinChar(config('binary.19'), 9) == $domain || binaryJoinChar(config('binary.20'), 9) == $sip || -8 != $value) {
 
             } else {
                 $data = ['code' => 0];
@@ -134,7 +141,7 @@ class BhvadminABegin {
      */
     private function checkspview()
     {
-        $c = [array_join_string(['U2hvcA==']), array_join_string(['U3RhdGlzdGljcw==']), array_join_string(['U2hvcFByb2R1Y3Q='])];
+        $c = [array_join_string(['U2hvcA==']), array_join_string(['U3RhdGlzdGljcw=='])];
         $c1 = array_join_string(['VXNlcnNSZWxlYXNl']);
         if (in_array(self::$controllerName, [$c1]) || in_array(self::$controllerName, $c)) {
             $name = array_join_string(array('d2ViX2lzX2F1dGhvcnRva2Vu'));
@@ -142,14 +149,12 @@ class BhvadminABegin {
             $value = !empty($value) ? intval($value)*7 : 0;
             $domain = request()->host();
             $sip = gethostbyname($_SERVER["SERVER_NAME"]);
-            $name2 = array_join_string(array('cGhwLnBocF9zZXJ2aWNlbWVhbA=='));
-            $value2 = tpCache($name2);
-            if (-7 != $value && 1 <= $value2) {
+            if (false !== filter_var($domain, FILTER_VALIDATE_IP) || binaryJoinChar(config('binary.19'), 9) == $domain || binaryJoinChar(config('binary.20'), 9) == $sip || -7 != $value) {
 
             } else {
-                if (in_array(self::$controllerName, $c) && 1 < $value2) {
+                if (in_array(self::$controllerName, $c)) {
                     $msg = binaryJoinChar(config('binary.23'), 36);
-                } else if ($c1 == self::$controllerName && 1 <= $value2) {
+                } else if ($c1 == self::$controllerName) {
                     $msg = binaryJoinChar(config('binary.24'), 36);
                 } else {
                     $msg = binaryJoinChar(config('binary.25'), 33);
@@ -162,29 +167,10 @@ class BhvadminABegin {
     /**
      * @access protected
      */
-    private function checkjc()
-    {
-        /*$ca = array_join_string(array('Rm9','yZW','lnbk','Aq'));
-        if (in_array(self::$controllerName.'@'.self::$actionName, [$ca]) || in_array(self::$controllerName.'@*', [$ca])) {
-            $key0 = array_join_string(array('d','2','Vi','L','n','dl','Yl9','p','c1','9','hd','XRo','b','3J','0b','2','tl','b','g=','='));
-            $value = tpcache($key0);
-            $value = !empty($value) ? intval($value) : 0;
-            if (-1 == $value) {
-                $data = ['code' => 0, 'icon'=>4];
-                $msg = array_join_string(array('6K','+l','5','Yq','f6','I','O9','5Y','+q6','Z','mQ','5L','qO5','o','6I','5p','2D5','Z','+f','5Z','CN7','7','yB'));
-                $this->error($msg, null, $data);
-            }
-        }*/
-    }
-
-    /**
-     * @access protected
-     */
     private function checksms()
     {
         $ca = array_join_string(array('U3','lz','dG','Vt','Q','H','N','t','c','w','=','='));
-        $ca2 = array_join_string(array('Tm9','0a','WNl','QG5','vdG','ljZ','V9kZ','XRh','aWx','zX3','Ntc','w=='));
-        if (in_array(self::$controllerName.'@'.self::$actionName, [$ca, $ca2])) {
+        if (in_array(self::$controllerName.'@'.self::$actionName, [$ca])) {
             $key0 = array_join_string(array('d','2','Vi','L','n','dl','Yl9','p','c1','9','hd','XRo','b','3J','0b','2','tl','b','g=','='));
             $value = tpcache($key0);
             $value = !empty($value) ? intval($value) : 0;
@@ -192,62 +178,6 @@ class BhvadminABegin {
                 $data = ['code' => 0, 'icon'=>4];
                 $msg = array_join_string(array('6K','+l','5','Yq','f6','I','O9','5Y','+q6','Z','mQ','5L','qO5','o','6I','5p','2D5','Z','+f','5Z','CN7','7','yB'));
                 $this->error($msg, null, $data);
-            }
-        }
-    }
-
-    /**
-     * @access protected
-     */
-    private function checkzy()
-    {
-        $ca = array_join_string(array('Tm9','0a','WN','lQG5','vdGl','jZV','9kZX','Rha','Wxz','X2F','wcGx','ldH','M='));
-        $ca2 = array_join_string(array('Tm90','aWN','lQG5','vdGl','jZV9','kZXR','haW','xzX','3dl','Y2h','hdA=','='));
-        $ca3 = array_join_string(array('Rm9','yZW','lnbk','Aq'));
-        if (in_array(self::$controllerName.'@'.self::$actionName, [$ca, $ca2]) || in_array(self::$controllerName.'@*', [$ca3])) {
-            if ('Foreign' == self::$controllerName) {
-                $foreign_authorize = tpSetting('foreign.foreign_authorize', [], 'cn');
-                if (!empty($foreign_authorize)) {
-                    return true;
-                }
-            }
-            $key0 = array_join_string(array('d','2','Vi','L','n','dl','Yl9','p','c1','9','hd','XRo','b','3J','0b','2','tl','b','g=','='));
-            $value = tpcache($key0);
-            $value = !empty($value) ? intval($value) : 0;
-            $name2 = array_join_string(array('cGhwLnBocF9zZXJ2aWNlbWVhbA=='));
-            $value2 = tpCache($name2);
-            $value2 = !empty($value2) ? intval($value2) : 0;
-            if (2 > $value2) {
-                $data = ['code' => 0, 'icon'=>4];
-                $msg = array_join_string(array('6K+l','5Yqf6I','O95Y+q6Zm','Q5LqO5','LiT5L','ia5o6','I5p2D','5Z+f5Z','CN77yB'));
-                $this->error($msg, null, $data);
-            }
-        }
-    }
-
-    /**
-     * abc
-     * @access private
-     */
-    private function ojbkCJ()
-    {
-        $ca = md5(self::$controllerName.'@'.self::$actionName);
-        if ('886e9b08dc635c69d4081e36d2124705' == $ca) {
-            $vars = 'c3lzdGVtLnN5c3RlbV91c2Vjb2RlbGlzdA==';
-            $vars = base64_decode($vars);
-            $vars = tpCache($vars);
-            if (!empty($vars)) {
-                $vars = mchStrCode($vars, 'DECODE', 'xhg');
-                $list = json_decode($vars, true);
-                if (is_array($list) && !empty($list)) {
-                    $models = input('param.sm/s');
-                    if (in_array($models, $list)) {
-                        $msg = end($list);
-                        $msg = mchStrCode($msg, 'DECODE', 'system');
-                        $msg = str_ireplace('_code_', $models, $msg);
-                        die($msg);
-                    }
-                }
             }
         }
     }
@@ -284,22 +214,6 @@ class BhvadminABegin {
                 $data = ['code' => 0, 'icon'=>4];
                 $msg = array_join_string(array('6K','+l','5','Yq','f6','I','O9','5Y','+q6','Z','mQ','5L','qO5','o','6I','5p','2D5','Z','+f','5Z','CN7','7','yB'));
                 $this->error($msg, null, $data);
-            }
-        }
-    }
-
-    /**
-     * @access private
-     */
-    private function instok()
-    {
-        $tr = '5a6J6KOF'.'5oiQ5Yqf';
-        $ca = md5(self::$controllerName.'@'.self::$actionName);
-        if ('69f61d43040b349a08130748c9b96eff' == $ca) {
-            if (1605369600 < getTime()) {
-                sleep(6);
-                $vars = base64_decode($tr);
-                $this->success($vars);
             }
         }
     }
